@@ -5,6 +5,8 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import './App.css';
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+
 const VERDICT_STYLES = {
   PASS: 'badge-pass',
   WARN: 'badge-warn',
@@ -167,7 +169,7 @@ function App() {
     setReviewRaw('');
 
     try {
-      const response = await axios.post('http://localhost:3000/ai/ai-review', {
+      const response = await axios.post(`${API_BASE_URL}/ai/ai-review`, {
         code: currentCode,
       });
 
