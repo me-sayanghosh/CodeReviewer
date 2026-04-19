@@ -17,8 +17,16 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get('/', (req, res) => {
+    res.send('CodeReviewer backend is running');
+});
+
 app.post('/', (req, res) => {
     res.send('Hello World!');
+});
+
+app.get('/health', (req, res) => {
+    res.status(200).json({ ok: true, service: 'backend' });
 });
 
 
