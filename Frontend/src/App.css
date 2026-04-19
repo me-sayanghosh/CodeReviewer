@@ -34,8 +34,8 @@ body {
   top: 0;
   z-index: 100;
   background-color: rgba(253, 246, 227, 0.85);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+	backdrop-filter: blur(12px);
 }
 
 .logo {
@@ -356,6 +356,7 @@ body {
 	font-size: 0.95rem;
 	line-height: 1.6;
 	text-align: right;
+	-webkit-user-select: none;
 	user-select: none;
 	min-width: 3rem;
 	overflow: hidden;
