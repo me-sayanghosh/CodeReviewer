@@ -1,12 +1,22 @@
 # CodeReviewer
 
-CodeReviewer is a full-stack AI-powered code review app.
-It lets users paste code in the frontend and receive structured AI feedback from the backend, including:
+CodeReviewer is a full-stack AI code review web app that analyzes submitted code and returns structured feedback with a verdict, score, risk areas, and a refactored version.
 
-- Verdict (`PASS`, `WARN`, `FAIL`)
-- Numeric score (`0-100`)
-- Review sections (`Bugs`, `Security`, `Performance`, `Style`)
-- Refactored code suggestions
+## Highlights
+
+- Structured output with fixed sections: Bugs, Security, Performance, Style, Refactored Code
+- Verdict and scoring model: PASS, WARN, FAIL plus score out of 100
+- Language hint support from payload and first-line directives
+- Frontend review workspace with section parsing and readable output
+- Backend validation and graceful handling for quota and availability issues
+
+## How It Works
+
+1. User pastes code in the frontend workspace.
+2. Frontend sends the code to the backend endpoint.
+3. Backend validates payload and normalizes language hints.
+4. Backend requests review content from Gemini.
+5. Frontend renders verdict, score, sections, and refactored code.
 
 ## Tech Stack
 
@@ -16,13 +26,15 @@ It lets users paste code in the frontend and receive structured AI feedback from
 - Vite
 - React Router
 - Axios
-- GSAP (animations)
+- GSAP
 
 ### Backend
 
 - Node.js
 - Express
-- Google Gemini API via `@google/genai`
+- @google/genai
+- dotenv
+- cors
 
 ## Project Structure
 
@@ -30,42 +42,51 @@ It lets users paste code in the frontend and receive structured AI feedback from
 CodeReviewer/
   Backend/
     Server.js
+    package.json
     src/
       app.js
-      controllers/ai.controller.js
       routes/ai.routes.js
+      controllers/ai.controller.js
       services/ai.services.js
   Frontend/
+    package.json
+    vercel.json
     src/
       App.jsx
       LandingPage.jsx
       app.route.jsx
+      main.jsx
 ```
 
 ## Prerequisites
 
-- Node.js 18+
-- npm 9+
-- A Gemini API key
+- Node.js 18 or newer
+- npm 9 or newer
+- Gemini API key
 
 ## Environment Variables
 
-### Backend (`Backend/.env`)
+### Backend environment at Backend/.env
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key
-# Optional (fallback is defined in code)
 GEMINI_MODEL=gemini-2.5-flash
 PORT=3000
 ```
 
-### Frontend (`Frontend/.env`)
+Notes:
+
+- GEMINI_API_KEY is required.
+- GEMINI_MODEL is optional.
+- PORT defaults to 3000 when not set.
+
+### Frontend environment at Frontend/.env
 
 ```env
 VITE_API_BASE_URL=http://localhost:3000
 ```
 
-## Run Locally
+## Local Development
 
 ### 1. Install dependencies
 
@@ -84,34 +105,40 @@ cd Backend
 npm start
 ```
 
-Backend runs by default on `http://localhost:3000`.
+Backend default URL: http://localhost:3000
 
 ### 3. Start frontend
 
-Open a second terminal:
+Run this in a second terminal:
 
 ```bash
 cd Frontend
 npm run dev
 ```
 
-Vite prints the frontend URL (usually `http://localhost:5173`).
+Frontend default URL: http://localhost:5173
 
-## API
+## API Reference
 
-### `POST /ai/ai-review`
+### POST /ai/ai-review
 
 Request body:
 
 ```json
 {
-  "code": "function sum(a,b){ return a+b }",
+  "code": "function sum(a, b) { return a + b; }",
   "language": "auto",
   "focusMode": "full"
 }
 ```
 
-Response shape:
+Request fields:
+
+- code: required string
+- language: optional string, defaults to auto
+- focusMode: optional string, defaults to full
+
+Successful response:
 
 ```json
 {
@@ -119,30 +146,51 @@ Response shape:
 }
 ```
 
-Notes:
+Possible error responses:
 
-- `code` is required.
-- `language` defaults to `auto`.
-- Language directives at the top of the code are supported, for example `/python` or `language: cpp`.
+- 400: invalid input or non-code text
+- 429: API quota exceeded
+- 503: AI service temporarily unavailable
+- 500: unexpected server error
 
-## Useful Scripts
+Language directive support:
 
-### Backend
+- slash form on first non-empty line, such as /python or /c++
+- key-value form, such as language: cpp or lang=java
 
-- `npm start` - start server
-- `npm run dev` - start server (currently same as start)
+## Scripts
 
-### Frontend
+### Backend scripts
 
-- `npm run dev` - start development server
-- `npm run build` - production build
-- `npm run preview` - preview production build
-- `npm run lint` - run ESLint
+- npm start: start backend server
+- npm run dev: start backend server
 
-## Deployment
+### Frontend scripts
 
-- Frontend includes `vercel.json` for SPA rewrites.
+- npm run dev: start Vite dev server
+- npm run build: create production build
+- npm run preview: preview production build
+- npm run lint: run ESLint
+
+## Deployment Notes
+
+- Frontend includes vercel.json for SPA rewrite routing.
+- Backend can be deployed to any Node.js host by setting GEMINI_API_KEY and start command npm start.
+
+## Troubleshooting
+
+- If frontend cannot reach backend, verify VITE_API_BASE_URL and backend PORT.
+- If requests fail with 429, your Gemini free tier quota is exhausted.
+- If requests fail with 503, retry after a short delay.
+- If backend fails on startup, verify GEMINI_API_KEY is present in Backend/.env.
+
+## Contributing
+
+1. Fork the repository
+2. Create a branch
+3. Commit focused changes
+4. Open a pull request with testing notes
 
 ## License
 
-No license is currently specified.
+No license is currently specified for this repository.
